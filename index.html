@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lolahin</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- SPLASH SCREEN -->
+    <div id="splash" class="splash">
+        <div class="splash-content">
+            <div class="splash-logo"><i class="fas fa-wallet"></i></div>
+            <h1>Lolahin</h1>
+            <p>Kelola Keuanganmu dengan Mudah</p>
+            <div class="splash-loader"><div class="loader-bar"></div></div>
+            <span class="splash-text">Memuat aplikasi...</span>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="app" class="app hidden">
+        <header class="header">
+            <h1><i class="fas fa-wallet"></i> Lolahin</h1>
+            <div class="header-actions">
+                <button id="themeBtn" class="icon-btn"><i class="fas fa-moon"></i></button>
+                <button id="menuBtn" class="icon-btn"><i class="fas fa-bars"></i></button>
+            </div>
+        </header>
+
+        <div id="menuDropdown" class="menu-dropdown hidden">
+            <button onclick="exportData()"><i class="fas fa-download"></i> Export</button>
+            <button onclick="document.getElementById('importFile').click()"><i class="fas fa-upload"></i> Import</button>
+            <button onclick="resetData()"><i class="fas fa-trash"></i> Reset</button>
+        </div>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+
+        <!-- ========== HOME TAB ========== -->
+        <div id="homeTab" class="tab-content active">
+            <div class="balance-card">
+                <div class="balance-top">
+                    <span>Total Saldo</span>
+                    <button id="eyeBtn" class="eye-btn"><i class="fas fa-eye"></i></button>
+                </div>
+                <h2 id="balanceAmount">Rp 0</h2>
+                <div class="balance-row">
+                    <div class="balance-item income">
+                        <div class="balance-icon"><i class="fas fa-arrow-down"></i></div>
+                        <div class="balance-info">
+                            <span>Pemasukan</span>
+                            <strong id="incomeAmount">Rp 0</strong>
+                        </div>
+                    </div>
+                    <div class="balance-item expense">
+                        <div class="balance-icon"><i class="fas fa-arrow-up"></i></div>
+                        <div class="balance-info">
+                            <span>Pengeluaran</span>
+                            <strong id="expenseAmount">Rp 0</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <button class="action-btn" onclick="openModal('income')">
+                    <div class="action-icon income"><i class="fas fa-plus"></i></div>
+                    <span>Pemasukan</span>
+                </button>
+                <button class="action-btn" onclick="openModal('expense')">
+                    <div class="action-icon expense"><i class="fas fa-minus"></i></div>
+                    <span>Pengeluaran</span>
+                </button>
+                <button class="action-btn" onclick="switchTab('invest')">
+                    <div class="action-icon invest"><i class="fas fa-coins"></i></div>
+                    <span>Investasi</span>
+                </button>
+            </div>
+
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Cari transaksi..." oninput="renderTransactions()">
+            </div>
+            <div class="filter-row">
+                <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">Semua</button>
+                <button class="filter-btn" data-filter="income" onclick="setFilter('income')">Pemasukan</button>
+                <button class="filter-btn" data-filter="expense" onclick="setFilter('expense')">Pengeluaran</button>
+            </div>
+
+            <div class="section-card">
+                <div class="section-header">
+                    <h3><i class="fas fa-history"></i> Riwayat Transaksi</h3>
+                    <span id="txCount" class="badge">0</span>
+                </div>
+                <div id="txList" class="tx-list"></div>
+            </div>
+        </div>
+
+        <!-- ========== STATS TAB ========== -->
+        <div id="statsTab" class="tab-content">
+            <div class="page-header">
+                <h2><i class="fas fa-chart-pie"></i> Statistik</h2>
+                <p>Analisis keuangan & pasar crypto</p>
+            </div>
+
+            <!-- Crypto Market Overview -->
+            <div class="section-card crypto-overview">
+                <div class="section-header">
+                    <h3><i class="fas fa-coins"></i> Pasar Crypto</h3>
+                    <button onclick="loadCryptoStats()" class="refresh-btn" id="refreshStatsBtn">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div id="cryptoStatsOverview" class="crypto-stats-grid">
+                    <div class="loading"><div class="spinner"></div></div>
+                </div>
+            </div>
+
+            <!-- Top Movers -->
+            <div class="section-card">
+                <div class="section-header">
+                    <h3><i class="fas fa-fire"></i> Top Movers</h3>
+                    <span class="badge green">Live</span>
+                </div>
+                <div id="topMovers" class="top-movers">
+                    <div class="loading"><div class="spinner"></div></div>
+                </div>
+            </div>
+
+            <!-- Chart Keuangan -->
+            <div class="section-card">
+                <div class="section-header"><h3><i class="fas fa-chart-bar"></i> Grafik Keuangan</h3></div>
+                <div class="chart-container"><canvas id="myChart"></canvas></div>
+            </div>
+
+            <!-- Kategori -->
+            <div class="section-card">
+                <h3><i class="fas fa-tags"></i> Pengeluaran per Kategori</h3>
+                <div id="categoryStats"></div>
+            </div>
+        </div>
+
+        <!-- ========== INVEST TAB ========== -->
+        <div id="investTab" class="tab-content">
+            <div class="page-header">
+                <h2><i class="fas fa-chart-line"></i> Investasi</h2>
+                <p>Crypto & Berita Terkini</p>
+            </div>
+
+            <div class="sub-tabs">
+                <button class="sub-tab active" onclick="switchSubTab('crypto')">
+                    <i class="fas fa-coins"></i> Crypto
+                </button>
+                <button class="sub-tab" onclick="switchSubTab('news')">
+                    <i class="fas fa-newspaper"></i> Berita
+                </button>
+            </div>
+
+            <!-- CRYPTO SUB TAB -->
+            <div id="cryptoSubTab" class="sub-content active">
+                <div class="tip-box">
+                    <i class="fas fa-lightbulb"></i>
+                    <p id="tipText">Diversifikasi portofolio. Jangan taruh semua di satu aset!</p>
+                    <button onclick="nextTip()"><i class="fas fa-chevron-right"></i></button>
+                </div>
+
+                <div class="crypto-stats">
+                    <div class="stat-item up"><i class="fas fa-arrow-up"></i><span id="cryptoUp">0</span><small>Naik</small></div>
+                    <div class="stat-item down"><i class="fas fa-arrow-down"></i><span id="cryptoDown">0</span><small>Turun</small></div>
+                    <div class="stat-item total"><i class="fas fa-coins"></i><span id="cryptoTotal">0</span><small>Total</small></div>
+                </div>
+
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="cryptoSearch" placeholder="Cari koin (BTC, ETH, dll)..." oninput="filterCrypto()">
+                </div>
+
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3><i class="fas fa-list"></i> Semua Koin</h3>
+                        <button onclick="loadCrypto()" class="refresh-btn" id="refreshBtn">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div id="cryptoList" class="crypto-list"></div>
+                    <button id="loadMoreBtn" class="load-more-btn hidden" onclick="loadMoreCrypto()">
+                        Muat Lebih Banyak <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+
+                <div class="disclaimer"><i class="fas fa-exclamation-triangle"></i><span>Bukan saran investasi. DYOR!</span></div>
+            </div>
+
+            <!-- NEWS SUB TAB -->
+            <div id="newsSubTab" class="sub-content">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="newsSearch" placeholder="Cari berita..." oninput="filterNews()">
+                </div>
+
+                <div class="filter-row">
+                    <button class="filter-btn active" data-news="all" onclick="setNewsFilter('all')">Semua</button>
+                    <button class="filter-btn" data-news="crypto" onclick="setNewsFilter('crypto')">Crypto</button>
+                    <button class="filter-btn" data-news="ekonomi" onclick="setNewsFilter('ekonomi')">Ekonomi</button>
+                </div>
+
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3><i class="fas fa-newspaper"></i> Berita Terkini</h3>
+                        <button onclick="loadNews()" class="refresh-btn" id="refreshNewsBtn">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div id="newsList" class="news-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== BUDGET TAB ========== -->
+        <div id="budgetTab" class="tab-content">
+            <div class="page-header">
+                <h2><i class="fas fa-piggy-bank"></i> Anggaran</h2>
+                <p>Atur batas pengeluaranmu</p>
+            </div>
+            <div class="section-card">
+                <div class="section-header">
+                    <h3><i class="fas fa-wallet"></i> Anggaran Bulanan</h3>
+                    <button class="add-btn" onclick="openBudgetModal()"><i class="fas fa-plus"></i></button>
+                </div>
+                <div id="budgetList" class="budget-list"></div>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAV -->
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-tab="home" onclick="switchTab('home')"><i class="fas fa-home"></i><span>Beranda</span></button>
+            <button class="nav-btn" data-tab="stats" onclick="switchTab('stats')"><i class="fas fa-chart-pie"></i><span>Statistik</span></button>
+            <button class="nav-btn fab" onclick="openModal('expense')"><i class="fas fa-plus"></i></button>
+            <button class="nav-btn" data-tab="invest" onclick="switchTab('invest')"><i class="fas fa-coins"></i><span>Investasi</span></button>
+            <button class="nav-btn" data-tab="budget" onclick="switchTab('budget')"><i class="fas fa-wallet"></i><span>Anggaran</span></button>
+        </nav>
+    </div>
+
+    <!-- MODALS -->
+    <div id="txModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeModal()"></div>
+        <div class="modal-box">
+            <div class="modal-header"><h3 id="modalTitle">Tambah Transaksi</h3><button onclick="closeModal()" class="close-btn">&times;</button></div>
+            <form onsubmit="saveTransaction(event)">
+                <input type="hidden" id="txId">
+                <div class="type-switch">
+                    <button type="button" class="type-btn income" onclick="setType('income')"><i class="fas fa-arrow-down"></i> Pemasukan</button>
+                    <button type="button" class="type-btn expense active" onclick="setType('expense')"><i class="fas fa-arrow-up"></i> Pengeluaran</button>
+                </div>
+                <div class="form-group"><label>Deskripsi</label><input type="text" id="txDesc" required></div>
+                <div class="form-group"><label>Jumlah (Rp)</label><input type="text" id="txAmount" required oninput="formatInput(this)"></div>
+                <div class="form-group"><label>Kategori</label><select id="txCategory" required></select></div>
+                <div class="form-group"><label>Tanggal</label><input type="date" id="txDate" required></div>
+                <div class="form-actions"><button type="button" class="btn secondary" onclick="closeModal()">Batal</button><button type="submit" class="btn primary">Simpan</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="budgetModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeBudgetModal()"></div>
+        <div class="modal-box">
+            <div class="modal-header"><h3>Tambah Anggaran</h3><button onclick="closeBudgetModal()" class="close-btn">&times;</button></div>
+            <form onsubmit="saveBudget(event)">
+                <div class="form-group"><label>Kategori</label><select id="budgetCat" required></select></div>
+                <div class="form-group"><label>Batas (Rp)</label><input type="text" id="budgetAmt" required oninput="formatInput(this)"></div>
+                <div class="form-actions"><button type="button" class="btn secondary" onclick="closeBudgetModal()">Batal</button><button type="submit" class="btn primary">Simpan</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="detailModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeDetail()"></div>
+        <div class="modal-box">
+            <div class="modal-header"><h3>Detail Transaksi</h3><button onclick="closeDetail()" class="close-btn">&times;</button></div>
+            <div id="detailContent"></div>
+            <div class="form-actions"><button class="btn secondary" onclick="editTx()"><i class="fas fa-edit"></i> Edit</button><button class="btn danger" onclick="deleteTx()"><i class="fas fa-trash"></i> Hapus</button></div>
+        </div>
+    </div>
+
+    <!-- Crypto Detail Modal -->
+    <div id="cryptoModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeCryptoModal()"></div>
+        <div class="modal-box">
+            <div class="modal-header"><h3 id="cryptoModalTitle">Detail Koin</h3><button onclick="closeCryptoModal()" class="close-btn">&times;</button></div>
+            <div id="cryptoModalContent"></div>
+        </div>
+    </div>
+
+    <!-- News Detail Modal -->
+    <div id="newsModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeNewsModal()"></div>
+        <div class="modal-box news-modal-box">
+            <div class="modal-header"><h3>Detail Berita</h3><button onclick="closeNewsModal()" class="close-btn">&times;</button></div>
+            <div id="newsModalContent"></div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

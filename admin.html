@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Lolahin</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Admin Login -->
+    <div id="adminLogin" class="admin-login">
+        <div class="login-box">
+            <div class="login-header">
+                <i class="fas fa-user-shield"></i>
+                <h2>Admin Panel</h2>
+                <p>Masukkan kredensial admin</p>
+            </div>
+            <form onsubmit="adminLogin(event)">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="adminUser" value="admin" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="adminPass" value="admin123" required>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Login Admin
+                </button>
+            </form>
+            <p class="demo-info">Demo: admin / admin123</p>
+            <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Kembali ke Aplikasi</a>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="admin-panel hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-wallet"></i>
+                <span>Lolahin Admin</span>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </button>
+                <button class="nav-item" data-section="news">
+                    <i class="fas fa-newspaper"></i> Kelola Berita
+                </button>
+                <button class="nav-item" data-section="tips">
+                    <i class="fas fa-lightbulb"></i> Tips Investasi
+                </button>
+                <button class="nav-item" data-section="categories">
+                    <i class="fas fa-tags"></i> Kategori
+                </button>
+                <button class="nav-item" data-section="ads">
+                    <i class="fas fa-ad"></i> Kelola Iklan
+                </button>
+                <button class="nav-item" data-section="settings">
+                    <i class="fas fa-cog"></i> Pengaturan
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <button onclick="logoutAdmin()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="admin-header">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 id="pageTitle">Dashboard</h1>
+                <div class="admin-user">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff" alt="Admin">
+                    <span>Admin</span>
+                </div>
+            </header>
+
+            <!-- Dashboard Section -->
+            <section id="dashboardSection" class="content-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+                        <div class="stat-info">
+                            <h3 id="totalUsers">0</h3>
+                            <p>Total Users</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fas fa-newspaper"></i></div>
+                        <div class="stat-info">
+                            <h3 id="totalNews">0</h3>
+                            <p>Total Berita</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon yellow"><i class="fas fa-lightbulb"></i></div>
+                        <div class="stat-info">
+                            <h3 id="totalTips">0</h3>
+                            <p>Total Tips</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon purple"><i class="fas fa-ad"></i></div>
+                        <div class="stat-info">
+                            <h3 id="totalAds">0</h3>
+                            <p>Iklan Aktif</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-section">
+                    <h3><i class="fas fa-clock"></i> Aktivitas Terbaru</h3>
+                    <div id="recentActivity" class="activity-list"></div>
+                </div>
+            </section>
+
+            <!-- News Section -->
+            <section id="newsSection" class="content-section">
+                <div class="section-header">
+                    <h2>Kelola Berita</h2>
+                    <button class="btn-add" onclick="openNewsModal()">
+                        <i class="fas fa-plus"></i> Tambah Berita
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Gambar</th>
+                                <th>Judul</th>
+                                <th>Kategori</th>
+                                <th>Tanggal</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="newsTable"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Tips Section -->
+            <section id="tipsSection" class="content-section">
+                <div class="section-header">
+                    <h2>Tips Investasi</h2>
+                    <button class="btn-add" onclick="openTipsModal()">
+                        <i class="fas fa-plus"></i> Tambah Tips
+                    </button>
+                </div>
+                <div id="tipsList" class="tips-list"></div>
+            </section>
+
+            <!-- Categories Section -->
+            <section id="categoriesSection" class="content-section">
+                <div class="section-header">
+                    <h2>Kelola Kategori</h2>
+                    <button class="btn-add" onclick="openCategoryModal()">
+                        <i class="fas fa-plus"></i> Tambah Kategori
+                    </button>
+                </div>
+                <div class="categories-grid">
+                    <div class="cat-group">
+                        <h3><i class="fas fa-arrow-down"></i> Kategori Pemasukan</h3>
+                        <div id="incomeCategories" class="cat-list"></div>
+                    </div>
+                    <div class="cat-group">
+                        <h3><i class="fas fa-arrow-up"></i> Kategori Pengeluaran</h3>
+                        <div id="expenseCategories" class="cat-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ads Section -->
+            <section id="adsSection" class="content-section">
+                <div class="section-header">
+                    <h2>Kelola Iklan</h2>
+                    <button class="btn-add" onclick="openAdsModal()">
+                        <i class="fas fa-plus"></i> Tambah Iklan
+                    </button>
+                </div>
+                <div class="ads-info">
+                    <p><i class="fas fa-info-circle"></i> Tambahkan kode iklan (Google AdSense, dll) untuk ditampilkan di aplikasi.</p>
+                </div>
+                <div id="adsList" class="ads-list"></div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settingsSection" class="content-section">
+                <div class="section-header">
+                    <h2>Pengaturan Aplikasi</h2>
+                </div>
+                <div class="settings-grid">
+                    <div class="setting-card">
+                        <h3><i class="fas fa-palette"></i> Branding</h3>
+                        <div class="form-group">
+                            <label>Nama Aplikasi</label>
+                            <input type="text" id="appName" value="Lolahin">
+                        </div>
+                        <div class="form-group">
+                            <label>Tagline</label>
+                            <input type="text" id="appTagline" value="Kelola Keuanganmu dengan Mudah">
+                        </div>
+                        <div class="form-group">
+                            <label>Logo (Icon)</label>
+                            <select id="appIcon">
+                                <option value="fa-wallet">💰 Wallet</option>
+                                <option value="fa-coins">🪙 Coins</option>
+                                <option value="fa-piggy-bank">🐷 Piggy Bank</option>
+                                <option value="fa-chart-line">📈 Chart</option>
+                                <option value="fa-money-bill-wave">💵 Money</option>
+                            </select>
+                        </div>
+                        <button class="btn-save" onclick="saveBranding()">
+                            <i class="fas fa-save"></i> Simpan Branding
+                        </button>
+                    </div>
+
+                    <div class="setting-card">
+                        <h3><i class="fas fa-paint-brush"></i> Warna Tema</h3>
+                        <div class="color-options">
+                            <label class="color-option">
+                                <input type="radio" name="themeColor" value="#6366f1" checked>
+                                <span style="background:#6366f1"></span> Indigo
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="themeColor" value="#10b981">
+                                <span style="background:#10b981"></span> Green
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="themeColor" value="#f59e0b">
+                                <span style="background:#f59e0b"></span> Orange
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="themeColor" value="#ef4444">
+                                <span style="background:#ef4444"></span> Red
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="themeColor" value="#8b5cf6">
+                                <span style="background:#8b5cf6"></span> Purple
+                            </label>
+                        </div>
+                        <button class="btn-save" onclick="saveTheme()">
+                            <i class="fas fa-save"></i> Simpan Tema
+                        </button>
+                    </div>
+
+                    <div class="setting-card">
+                        <h3><i class="fas fa-key"></i> Ganti Password Admin</h3>
+                        <div class="form-group">
+                            <label>Password Lama</label>
+                            <input type="password" id="oldPass">
+                        </div>
+                        <div class="form-group">
+                            <label>Password Baru</label>
+                            <input type="password" id="newPass">
+                        </div>
+                        <div class="form-group">
+                            <label>Konfirmasi Password</label>
+                            <input type="password" id="confirmPass">
+                        </div>
+                        <button class="btn-save" onclick="changePassword()">
+                            <i class="fas fa-save"></i> Ganti Password
+                        </button>
+                    </div>
+
+                    <div class="setting-card">
+                        <h3><i class="fas fa-database"></i> Backup & Restore</h3>
+                        <p>Export atau import semua data admin.</p>
+                        <div class="backup-buttons">
+                            <button class="btn-export" onclick="exportAdminData()">
+                                <i class="fas fa-download"></i> Export Data
+                            </button>
+                            <button class="btn-import" onclick="document.getElementById('importAdmin').click()">
+                                <i class="fas fa-upload"></i> Import Data
+                            </button>
+                            <input type="file" id="importAdmin" accept=".json" style="display:none" onchange="importAdminData(event)">
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- News Modal -->
+    <div id="newsModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeNewsModal()"></div>
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="newsModalTitle">Tambah Berita</h3>
+                <button onclick="closeNewsModal()" class="close-btn">&times;</button>
+            </div>
+            <form onsubmit="saveNews(event)">
+                <input type="hidden" id="newsId">
+                <div class="form-group">
+                    <label>Judul Berita</label>
+                    <input type="text" id="newsTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Ringkasan</label>
+                    <textarea id="newsSummary" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>URL Gambar</label>
+                    <input type="url" id="newsImage" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label>Kategori</label>
+                    <select id="newsCategory" required>
+                        <option value="crypto">Crypto</option>
+                        <option value="ekonomi">Ekonomi</option>
+                        <option value="investasi">Investasi</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Sumber</label>
+                    <input type="text" id="newsSource" required>
+                </div>
+                <div class="form-group">
+                    <label>URL Berita</label>
+                    <input type="url" id="newsUrl" placeholder="https://...">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closeNewsModal()">Batal</button>
+                    <button type="submit" class="btn-save">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tips Modal -->
+    <div id="tipsModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeTipsModal()"></div>
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>Tambah Tips</h3>
+                <button onclick="closeTipsModal()" class="close-btn">&times;</button>
+            </div>
+            <form onsubmit="saveTips(event)">
+                <input type="hidden" id="tipId">
+                <div class="form-group">
+                    <label>Isi Tips</label>
+                    <textarea id="tipContent" rows="4" required placeholder="Tulis tips investasi..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closeTipsModal()">Batal</button>
+                    <button type="submit" class="btn-save">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Category Modal -->
+    <div id="categoryModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeCategoryModal()"></div>
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>Tambah Kategori</h3>
+                <button onclick="closeCategoryModal()" class="close-btn">&times;</button>
+            </div>
+            <form onsubmit="saveCategory(event)">
+                <input type="hidden" id="catId">
+                <div class="form-group">
+                    <label>Tipe</label>
+                    <select id="catType" required>
+                        <option value="income">Pemasukan</option>
+                        <option value="expense">Pengeluaran</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nama Kategori</label>
+                    <input type="text" id="catName" required>
+                </div>
+                <div class="form-group">
+                    <label>Icon</label>
+                    <select id="catIcon">
+                        <option value="fa-wallet">💰 Wallet</option>
+                        <option value="fa-briefcase">💼 Briefcase</option>
+                        <option value="fa-utensils">🍽️ Food</option>
+                        <option value="fa-car">🚗 Car</option>
+                        <option value="fa-shopping-bag">🛍️ Shopping</option>
+                        <option value="fa-heart">❤️ Health</option>
+                        <option value="fa-gamepad">🎮 Entertainment</option>
+                        <option value="fa-file-invoice">📄 Bills</option>
+                        <option value="fa-graduation-cap">🎓 Education</option>
+                        <option value="fa-gift">🎁 Gift</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Warna</label>
+                    <input type="color" id="catColor" value="#6366f1">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closeCategoryModal()">Batal</button>
+                    <button type="submit" class="btn-save">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Ads Modal -->
+    <div id="adsModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeAdsModal()"></div>
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>Tambah Iklan</h3>
+                <button onclick="closeAdsModal()" class="close-btn">&times;</button>
+            </div>
+            <form onsubmit="saveAds(event)">
+                <input type="hidden" id="adId">
+                <div class="form-group">
+                    <label>Nama Iklan</label>
+                    <input type="text" id="adName" required placeholder="Contoh: Banner Atas">
+                </div>
+                <div class="form-group">
+                    <label>Posisi</label>
+                    <select id="adPosition" required>
+                        <option value="header">Header (Atas)</option>
+                        <option value="home">Home Page</option>
+                        <option value="invest">Halaman Investasi</option>
+                        <option value="footer">Footer (Bawah)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Kode Iklan (HTML/JavaScript)</label>
+                    <textarea id="adCode" rows="6" placeholder="Paste kode iklan AdSense, dll..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="adActive" checked>
+                        <span>Aktif</span>
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closeAdsModal()">Batal</button>
+                    <button type="submit" class="btn-save">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+    <script src="js/admin.js"></script>
+</body>
+</html>
